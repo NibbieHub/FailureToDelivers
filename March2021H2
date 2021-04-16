@@ -1,0 +1,39 @@
+import csv
+import pandas as pd
+
+file = pd.read_csv (r'C:\Users\<Name>\Desktop\cnsfails202103b.txt', sep='|')
+file.replace('|',',')
+file.to_csv (r'C:\Users\<Name>\PycharmProjects\pythonProject\cnsfails202103b.csv', index=None)
+ETFs = pd.read_csv (r'C:\Users\<Name>\PycharmProjects\pythonProject\ETFs.csv')
+# ETFs = ETF.sort_values(by=['name'])
+# ETFs.to_csv (r'C:\Users\<Name>\PycharmProjects\pythonProject\ETFs.csv', index=None)
+# ETF = pd.read_csv (r'C:\Users\<Name>\PycharmProjects\pythonProject\ETFs.csv')
+ETF_list = ETFs['name'].tolist()
+
+del file['CUSIP']
+del file['DESCRIPTION']
+
+GME = file[file["SYMBOL"]=="GME"]
+GMElast = GME.tail(1)
+ETFs2 = file[file["SYMBOL"].isin(ETF_list)]
+
+listy = []
+
+for x in ETF_list:
+    test = ETFs2[ETFs2["SYMBOL"]==x]
+    test2 = test.tail(1)
+    ETFlast = test.last_valid_index()
+    listy.append(ETFlast)
+
+ETFs3 = ETFs2.loc[listy, ]
+
+Combined = GMElast.append(ETFs3)
+Combined.to_csv(r'C:\Users\<Name>\PycharmProjects\pythonProject\GMEandETFsLast.csv', index=None)
+
+Total1_FTD = GMElast["QUANTITY (FAILS)"].sum()
+Total2_FTD = ETFs3["QUANTITY (FAILS)"].sum()
+Total3_FTD = Combined["QUANTITY (FAILS)"].sum()
+
+print(Total1_FTD)
+print(Total2_FTD)
+print(Total3_FTD)
